@@ -5,11 +5,12 @@ $cipher = 'AES-256-CTR';
 $iv = random_bytes(16); $iv_hex = bin2hex($iv);
 
 if($_SERVER["REQUEST_METHOD"] == "POST") {
-    $key = $_POST['password'];
+    $key = $_POST['username'];
     
     $usernameOriginal = $conn->real_escape_string($_POST['username']);
     $username = openssl_encrypt($usernameOriginal, $cipher, $key, OPENSSL_RAW_DATA, $iv);
     $username = bin2hex($username);
+    
     $address = $conn->real_escape_string($_POST['address']);
     $address = openssl_encrypt($address, $cipher, $key, OPENSSL_RAW_DATA, $iv);
     $address = bin2hex($address);
@@ -49,7 +50,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
-    if (empty($username_error) && empty($confirm_password_error)) {
+    if (empty($error)) {
         $sql = "INSERT INTO users (username, password, fullname, address, dob, phone, iv) VALUES ('$username', '$hashedpassword', '$fullname', '$address', '$dob', '$phone','$iv_hex')";
         
         if ($conn->query($sql) === TRUE) {

@@ -14,7 +14,7 @@ $found = "";
 $cipher = 'AES-256-CTR';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $key = $_POST['password'];
+    $key = $_POST['username'];
               
 	if (empty($_POST["username"])) {
 		$username_error = "Enter a username";
@@ -39,12 +39,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $iv = hex2bin($row['iv']);
             $hashedpassword = $row['password'];
                  
+            $user = $row['username'];
             $usernameCompare = hex2bin($row['username']);
             $usernameCompare2 = openssl_decrypt($usernameCompare, $cipher, $key, OPENSSL_RAW_DATA, $iv);
 
             if ($username == $usernameCompare2) {
                 $found = "found";
-                echo "Username is correct \n";
+                echo "Username is correct";
                 
             $fullname = hex2bin($row['fullname']);
             $fullname = openssl_decrypt($fullname, $cipher, $key, OPENSSL_RAW_DATA, $iv);
@@ -57,12 +58,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $id;
+                    $_SESSION["user"] = $user;
                     $_SESSION["username"] = $username;
                     $_SESSION["fullname"] = $fullname;
-                    
                     header("location: welcome.php");
-                    $found = "";
-                } 
+                    break;
+                }
             }
         }
     }

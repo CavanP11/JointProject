@@ -131,7 +131,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $conn->query($sql);
     $row = mysqli_fetch_assoc($result);
     
-    $key = $row['password'];
+    $key = $_SESSION['username'];
+    
     $iv = hex2bin($row['iv']);
     
     $fullname = $conn->real_escape_string($_POST['fullname']);
@@ -156,7 +157,7 @@ $sql = "SELECT * FROM users WHERE id=$id";
 $result = $conn->query($sql);
 $row = mysqli_fetch_assoc($result);
 
-$key = $row['password'];
+$key = $_SESSION['username'];
 $iv = hex2bin($row['iv']);
 
 $sql = "SELECT * FROM closecontacts where id=$id";

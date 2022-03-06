@@ -11,7 +11,7 @@ require_once "connection.php";
 
 $new_password = ""; $confirm_password = "";
 $new_password_err = ""; $confirm_password_err = "";
-$id;
+$id; $found = ""; $password;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
@@ -32,36 +32,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
-    if (empty($_POST["password"])) {
-		$password_error = "Please enter a password";
-        echo $password_error;
-	} else {
-		$password = $_POST["password"];
-	}
+    $id = $_SESSION["id"];
+    $sql = "SELECT * FROM users WHERE id=$id";
+    $result = $conn->query($sql);
+    $row = mysqli_fetch_assoc($result);
     
-    if(empty($new_password_err) && empty($confirm_password_err)) {
-        $id = $_SESSION["id"];
-        $sql = "SELECT * FROM users WHERE id=$id";
-        $result = $conn->query($sql);
-        
-        while($row = $result->fetch_assoc()) {
-            $hashedpassword = $row['password'];
-            echo $hashedpassword;
-            if (password_verify($password, $hashedpassword)) {
-
-                $hashedpassword = password_hash($confirm_password, PASSWORD_DEFAULT);
-
-                $sql = "UPDATE users SET password = '$hashedpassword' WHERE id = '$id'";
-                $result = $conn->query($sql);
-                    session_destroy();
-                    header("location: login.php");
-                    exit();
-            } else {echo "Passwords wrong";header("location: resetpassword.php");}
-        }
-
-    } else {
-        echo "Oops! Something went wrong";
+    $password = $_POST["password"];
+    $hashedpassword = $row['password'];
+    
+    if (password_verify($password, $hashedpassword)) {
+        $found = "true";
     }
+         if(empty($new_password_err) && !empty($found)) {
+             $hashedpassword = password_hash($new_password, PASSWORD_DEFAULT);
+             $sql = "UPDATE users SET password = '$hashedpassword' WHERE id = '$id'";
+             $result = $conn->query($sql);
+             session_destroy();
+             header("location: login.php");
+         } else { echo "Verification not working"; }
+    echo $id;
 }
 ?>
 
@@ -82,14 +71,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 						<a class="nav-link" href="welcome.php">Home</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="close.php">Close Contacts</a>
+						<a class="nav-link active" href="close.php">Close Contacts</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="tests.php">Antigen Tests
                         </a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link " href="resetpassword.php">Account</a>
+						<a class="nav-link" href="resetpassword.php">Account</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="logout.php">Log Out</a>
